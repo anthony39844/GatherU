@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-import json
 
 from dotenv import load_dotenv
 import os
@@ -13,8 +12,9 @@ uri = f"mongodb+srv://jchen012004:{database_password}@accounts.vumyj.mongodb.net
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 # Send a ping to confirm a successful connection
-db = client['sample_training']
-collection = db['zips']
+db = client['test']
+user_collection = db['users']
+
 try:
     client.admin.command('ping')
     print("Pinged your deployment. You successfully connected to MongoDB!")
@@ -28,13 +28,13 @@ app = FastAPI()
 
 @app.get("/events")
 async def displayEvents():
-    res = collection.find({"city":"HUEYTOWN"})
-    documents = list(res)
-    json_data = json.dumps(documents, default=str)
+    collection = db['events']
 
-
-    return json_data
-
+    res = collection.find()
+    events = [event for event in res]
+    for event in events:
+        event["_id"] = str(event["_id"])
+    return events
 
 @app.patch("/events")
 async def updateEvent():
@@ -55,8 +55,11 @@ async def deleteEvent():
 
 @app.get("/account")
 async def displayAccount():
-
-    return {}
+    res = user_collection.find()
+    accounts = [account for account in res]
+    for account in accounts:
+        account["_id"] = str(account["_id"])
+    return accounts
 
 @app.patch("/account")
 async def updateAccount():
