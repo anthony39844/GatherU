@@ -1,0 +1,45 @@
+.nav-container {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--primary-color);
+}
+
+a {
+    color: var(--primary-text);  
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+a div {
+    padding: 10px 20px;
+}
+
+a:hover {
+    text-decoration: none;
+    color: var(--primary-text-hover);
+}
+a:hover div {
+    border-radius: 30px;
+    padding: 10px 20px;
+    background-color: var(--primary-color-hover);
+}
+
+.title {
+    font-weight: 900;
+    font-size: 40px;
+    padding-left: 40px;
+    width: 50%;
+    text-align: left;
+    color: var(--maroon);
+}
+
+nav {
+    display: flex;
+    width: 50%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: right;
+    padding-right: 20px;
+    gap: 5vw;
+}
