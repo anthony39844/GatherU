@@ -1,77 +1,57 @@
 import { useState } from "react";
 import Nav from "../Nav/Nav";
 import "./SignUp.css";
-import EventForm from "../EventForm/EventForm";
-import OrgEvents from "../OrgEvents/OrgEvents";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function SignIn() {
-  const [signUp, setSignUp] = useState(true);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    contact: [],
-  });
-  const [signInData, setSignInData] = useState({
-    email: "",
-    password: "",
-  });
+    const navigate = useNavigate();
+    const [signUp, setSignUp] = useState(true);
 
-  const handleSignInChange = (e: any) => {
-    const { name, value } = e.target;
-      setSignInData({
-        ...formData,
-        [name]: value,
-      });
-  };
-  
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-
-    if (name === "contact") {
-      const updatedContacts = value
-        .split(",")
-        .map((contact: string) => contact.trim()) 
-        .filter((contact: string) => contact); 
-      setFormData({
-        ...formData,
-        [name]: updatedContacts,
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-  };
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault(); 
-    console.log("Form Data:", formData);
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/createAccount",
-        formData
-      );
-      console.log("Form Data Submitted:", response.data); 
-    } catch (error) {
-      console.error("There was an error submitting the form:", error);
-    }
-  };
-
-  const handleSignIn = async (e: any) => {
-    e.preventDefault(); 
-    try {
+    const handleSignUp = async (e: any) => {
+        e.preventDefault(); 
+        const form = new FormData(e.target as HTMLFormElement);
+        const contact = form.get("contact") as string;
+        const contactList = contact ? contact.split(",").map(item => item.trim()) : [];
+        const username = form.get("username") as string;
+        const email = form.get("email") as string;
+        const password = form.get("password") as string;
+        try {
         const response = await axios.post(
-            "http://localhost:8000/loginAccount",
-            signInData
+            "http://localhost:8000/createAccount",
+            {
+                username: username,
+                email: email,
+                password: password,
+                contact: contactList
+            }
         );
         console.log("Form Data Submitted:", response.data); 
         } catch (error) {
         console.error("There was an error submitting the form:", error);
         }
-    }
+    };
+
+    const handleSignIn = async (e: any) => {
+        e.preventDefault(); 
+
+        const form = new FormData(e.target as HTMLFormElement);
+        const email = form.get("email") as string;
+        const password = form.get("password") as string;
+
+        try {
+            const response = await axios.post(
+                "http://localhost:8000/loginAccount",
+                {email: email, password: password}
+            );
+            console.log("Form Data Submitted:", response.data); 
+            if (response.status == 200) {
+                navigate("/${status}"); 
+            }
+            } catch (error) {
+            console.error("There was an error submitting the form:", error);
+            }
+        }
   
 
   return (
@@ -85,14 +65,13 @@ function SignIn() {
           Sign up as an organization to promote your events!
         </h1>
         <div className="form-container">
-          <form className="form" onSubmit={handleSubmit}>
+          <form className="form" onSubmit={handleSignUp}>
             <input
               type="text"
               id="username"
               name="username"
               required
               placeholder="Organization Name"
-              onChange={handleChange}
             ></input>
 
             <input
@@ -101,7 +80,6 @@ function SignIn() {
               name="email"
               required
               placeholder="Organization Email"
-              onChange={handleChange}
             ></input>
 
             <input
@@ -110,7 +88,6 @@ function SignIn() {
               name="password"
               required
               placeholder="Password"
-              onChange={handleChange}
             ></input>
 
             <input
@@ -120,7 +97,6 @@ function SignIn() {
               multiple
               required
               placeholder="Board Member Emails (e.g. a@umn.edu, b@umn.edu)"
-              onChange={handleChange}
             ></input>
             <button className="submit-btn" type="submit">
               Sign Up
@@ -139,11 +115,10 @@ function SignIn() {
           <form className="form" onSubmit={handleSignIn}>
             <input
               type="email"
-              id="user"
-              name="user"
+              id="email"
+              name="email"
               required
               placeholder="Organization Email"
-              onChange={handleSignInChange}
             ></input>
 
             <input
@@ -152,7 +127,6 @@ function SignIn() {
               name="password"
               required
               placeholder="Password"
-              onChange={handleSignInChange}
             ></input>
 
             <button className="submit-btn" type="submit">
@@ -164,8 +138,6 @@ function SignIn() {
           Back to sign up <span onClick={() => setSignUp(!signUp)}>here</span>
         </h3>
       </div>
-      <EventForm></EventForm>
-      <OrgEvents></OrgEvents>
     </>
   );
 }

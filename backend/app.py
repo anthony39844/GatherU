@@ -157,7 +157,7 @@ async def displayAccounts():
 async def loginAccount(loginRequest: LoginRequest):
     
     user = user_collection.find_one({"email":loginRequest.email})
-
+    print(loginRequest)
     if not user or not pwd_context.verify(loginRequest.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
