@@ -1,0 +1,17 @@
+.home-container {
+    margin: 0;
+    height: 100vh;
+    background-color: white;
+    color: var(--primary-text);
+}
+
+.img-body {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-image: url("./mall.jpeg");
+}
+
+.sub-title {
+    font-weight: 300;
+}
