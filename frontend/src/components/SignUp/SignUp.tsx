@@ -5,54 +5,52 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function SignIn() {
-    const navigate = useNavigate();
-    const [signUp, setSignUp] = useState(true);
+  const navigate = useNavigate();
+  const [signUp, setSignUp] = useState(true);
 
-    const handleSignUp = async (e: any) => {
-        e.preventDefault(); 
-        const form = new FormData(e.target as HTMLFormElement);
-        const contact = form.get("contact") as string;
-        const contactList = contact ? contact.split(",").map(item => item.trim()) : [];
-        const username = form.get("username") as string;
-        const email = form.get("email") as string;
-        const password = form.get("password") as string;
-        try {
-        const response = await axios.post(
-            "http://localhost:8000/createAccount",
-            {
-                username: username,
-                email: email,
-                password: password,
-                contact: contactList
-            }
-        );
-        console.log("Form Data Submitted:", response.data); 
-        } catch (error) {
-        console.error("There was an error submitting the form:", error);
-        }
-    };
+  const handleSignUp = async (e: any) => {
+    e.preventDefault();
+    const form = new FormData(e.target as HTMLFormElement);
+    const contact = form.get("contact") as string;
+    const contactList = contact
+      ? contact.split(",").map((item) => item.trim())
+      : [];
+    const username = form.get("username") as string;
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
+    try {
+      const response = await axios.post("http://localhost:8000/createAccount", {
+        username: username,
+        email: email,
+        password: password,
+        contact: contactList,
+      });
+      console.log("Form Data Submitted:", response.data);
+    } catch (error) {
+      console.error("There was an error submitting the form:", error);
+    }
+  };
 
-    const handleSignIn = async (e: any) => {
-        e.preventDefault(); 
+  const handleSignIn = async (e: any) => {
+    e.preventDefault();
 
-        const form = new FormData(e.target as HTMLFormElement);
-        const email = form.get("email") as string;
-        const password = form.get("password") as string;
+    const form = new FormData(e.target as HTMLFormElement);
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-        try {
-            const response = await axios.post(
-                "http://localhost:8000/loginAccount",
-                {email: email, password: password}
-            );
-            console.log("Form Data Submitted:", response.data); 
-            if (response.status == 200) {
-                navigate("/${status}"); 
-            }
-            } catch (error) {
-            console.error("There was an error submitting the form:", error);
-            }
-        }
-  
+    try {
+      const response = await axios.post("http://localhost:8000/loginAccount", {
+        email: email,
+        password: password,
+      });
+      console.log("Form Data Submitted:", response.data);
+      if (response.status == 200) {
+        navigate(`/OrgEvents/${response.data.id}`);
+      }
+    } catch (error) {
+      console.error("There was an error submitting the form:", error);
+    }
+  };
 
   return (
     <>

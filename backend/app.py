@@ -61,6 +61,13 @@ async def displayEvents():
         event["_id"] = str(event["_id"])
     return events
 
+@app.get("/event_by_id/{event_id}")
+async def getEvent(event_id):
+    event = event_collection.find({'_id': ObjectId(event_id)}).to_list()
+    if event == []:
+        return {"messaage":"no event with id"}
+    event[0]["_id"] = event_id
+    return event[0]
 
 @app.patch("/update_events")
 async def updateEvent(item: dict):
@@ -152,12 +159,19 @@ async def displayAccounts():
     for account in accounts:
         account["_id"] = str(account["_id"])
     return accounts
+@app.get("/get_one_account/{org_id}")
+async def get_one_account(org_id):
+    account = user_collection.find({'_id': ObjectId(org_id)}).to_list()
+    if account == []:
+        return {"messaage":"no event with id"}
+    account[0]["_id"] = org_id
+    return account
 
 @app.post("/loginAccount")
 async def loginAccount(loginRequest: LoginRequest):
     
     user = user_collection.find_one({"email":loginRequest.email})
-    print(loginRequest)
+
     if not user or not pwd_context.verify(loginRequest.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
