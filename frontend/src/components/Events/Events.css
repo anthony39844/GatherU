@@ -1,0 +1,70 @@
+div {
+    color: black;
+}
+
+p {
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.event-cal {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    margin: 20px;
+}
+
+.day-module {
+    width: 100%;
+}
+
+.day-title {
+    padding-bottom: 20px;
+    text-align: left;
+    color: var(--maroon);
+    border-bottom: 1px solid var(--maroon);
+}
+
+.event-module {
+    border-radius: 10px;
+    background-color: var(--primary-color);
+    padding: 0 40px;
+    margin: 15px 0;
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    border-bottom: 1px solid var(--maroon);
+}
+
+.event-title {
+    padding: 20px 0;
+    width: fit-content;
+    margin: 0;
+    max-width: 50%;
+}
+
+.event-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.event-name {
+    font-size: 30px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.event-details {
+    padding: 20px 0;
+    text-align: left;
+}
