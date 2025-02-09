@@ -4,11 +4,15 @@ from pymongo.server_api import ServerApi
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
+from jose import jwt
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 import os
 load_dotenv()
 database_password = os.getenv("DB_PASS")
+secret_key = os.getenv("SECRET_KEY")
+algo = os.getenv("ALGORITHM")
 
 
 uri = f"mongodb+srv://jchen012004:{database_password}@accounts.vumyj.mongodb.net/?retryWrites=true&w=majority&appName=Accounts"
@@ -87,8 +91,19 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-@app.get("/displayAccount")
-async def displayAccount():
+def create_access_token(data: LoginRequest, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)  # Default expiration time
+
+    to_encode.update({"exp": expire})  # Set expiration time
+    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algo)
+    return encoded_jwt
+
+@app.get("/displayAccounts")
+async def displayAccounts():
     res = user_collection.find()
     accounts = [account for account in res]
     for account in accounts:
@@ -98,11 +113,17 @@ async def displayAccount():
 @app.post("/loginAccount")
 async def loginAccount(loginRequest: LoginRequest):
     
-    result = user_collection.find_one({"email": email})
-    if result:
-        stored_password = pwd_context.hash(password)
+    user = user_collection.find_one({"email":loginRequest.email})
 
-    return {}
+    if not user or not pwd_context.verify(loginRequest.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    return {
+        "id": str(user["_id"]),   # Convert ObjectId to string
+        "email": user["email"],
+        "username": user["username"],
+        "role": user["role"]
+    }
 
 @app.patch("/updateAccount")
 async def updateAccount(key, val, account_id):
@@ -120,28 +141,29 @@ async def createAccount(account_info: Account):
     # Check if the username or email already exists in db
     if user_collection.find_one({"$or": [{"username": account_info.username}, {"email": account_info.email}]}):
         raise HTTPException(status_code=400, detail="Account with this username or email already exists")
+    else:
     
-    hashed_password = pwd_context.hash(account_info.password)
+        hashed_password = pwd_context.hash(account_info.password)
 
-    # Create new entry in db
-    new_user = {
-        "username": account_info.username,
-        "email": account_info.email,
-        "password": hashed_password,
-        "contact": account_info.contact,
-        "events_list": account_info.events_list,
-        "role": account_info.role,
-        "status": account_info.status
+        # Create new entry in db
+        new_user = {
+            "username": account_info.username,
+            "email": account_info.email,
+            "password": hashed_password,
+            "contact": account_info.contact,
+            "events_list": account_info.events_list,
+            "role": account_info.role,
+            "status": account_info.status
 
-    }
+        }
 
-    # Insert into collection of users
-    result = await user_collection.insert_one(new_user)
+        # Insert into collection of users
+        result = await user_collection.insert_one(new_user)
 
-    if result.inserted_count == 0:
-        return {"message":"Failed to create account"}    
-    
-    return {"message":f"Account successfully created!"}
+        if result.inserted_count == 0:
+            return {"message":"Failed to create account"}    
+        
+        return {"message":f"Account successfully created!"}
 
 @app.delete("/deleteAccount")
 async def deleteAccount(user_id: str):
