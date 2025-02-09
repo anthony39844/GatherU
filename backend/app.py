@@ -40,19 +40,27 @@ class Event(BaseModel):
 
 @app.get("/events")
 async def displayEvents():
-
     res = event_collection.find()
     events = [event for event in res]
+    
     for event in events:
         event["_id"] = str(event["_id"])
     return events
 
-@app.patch("/events")
-async def updateEvent(event_id, key, val):
-    event_collection.update_one(
-            {'_id': ObjectId(event_id)},
-            {{key: val}})
-    return {}
+
+@app.patch("/update_events")
+async def updateEvent(item: dict):
+    # Build the update query using the $set operator
+    update_data = {item["key"]: item["val"]}
+    
+    # Perform the update using update_one
+    result = event_collection.update_one(
+        {'_id': ObjectId(item["event_id"])},  # Matching the event by its ObjectId
+        {'$set': update_data}  # Use $set to specify the fields to update
+    )
+    
+    # Return a response (optional: you can include more info about the result)
+    return {"modified_count": result.modified_count}
 
 @app.post("/add_events/")
 async def create_event(item: Event):
