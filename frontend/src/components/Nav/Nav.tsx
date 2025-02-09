@@ -4,7 +4,7 @@ import "./Nav.css";
 import { useIdContext } from "../../context/IdContext";
 
 function Nav({ status }: { status?: string }) {
-  const { id: globalId } = useIdContext();
+  const { id: globalId, setId: setId, setOrg: setOrg } = useIdContext();
   return (
     <div className="nav-container">
       <h1 className="title">GatherU</h1>
@@ -15,10 +15,10 @@ function Nav({ status }: { status?: string }) {
         <Link to="/Events">
           <div>Events</div>
         </Link>
-        <Link to="/SignUp">
-          <div>Sign Up</div>
-        </Link>
         {globalId ? <Link to={`/OrgEvents/${globalId}`}>Account</Link> : null}
+        {globalId ? <Link to="/" onClick={() => {setId(null); setOrg(null)}}>Sign Out</Link> : <Link to="/SignUp">
+          <div>Sign Up</div>
+        </Link>}
       </nav>
     </div>
   );

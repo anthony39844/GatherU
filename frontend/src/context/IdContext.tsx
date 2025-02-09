@@ -2,9 +2,9 @@ import React, { createContext, useContext, ReactNode } from "react";
 
 interface IdContextType {
   id: string | null;
-  setId: (id: string) => void;
+  setId: (id: string | null) => void | undefined;
   org: string | null;
-  setOrg: (id: string) => void;
+  setOrg: (id: string | null) => void;
 }
 
 const IdContext = createContext<IdContextType | undefined>(undefined);
