@@ -1,10 +1,10 @@
 import "./Nav.css";
 import { Link } from "react-router-dom";
 import "./Nav.css";
-import { getId } from "../../context/IdContext";
+import { useIdContext } from "../../context/IdContext";
 
 function Nav({ status }: { status?: string }) {
-  const { id: globalId } = getId();
+  const { id: globalId } = useIdContext();
   return (
     <div className="nav-container">
       <h1 className="title">GatherU</h1>

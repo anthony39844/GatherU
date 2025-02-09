@@ -1,11 +1,20 @@
 import Nav from "../Nav/Nav";
 import "./EventForm.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useIdContext } from "../../context/IdContext";
+import { useNavigate } from "react-router-dom";
 function EventForm() {
   const [message, setMessage] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const { org } = useIdContext();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!org) {
+      navigate("/");
+    }
+  });
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
     console.log(e.target.value); // Log the new date value
@@ -17,8 +26,7 @@ function EventForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent the default form submission
-    const [year, month, day] = date.split('-');
-    console.log(date)
+    const [year, month, day] = date.split("-");
     const eventData = {
       name: (e.currentTarget.elements.namedItem("name") as HTMLInputElement)
         .value,
@@ -87,7 +95,9 @@ function EventForm() {
               id="org"
               name="org"
               required
-              placeholder="Organization"
+              disabled
+              placeholder={org || "Organization"}
+              value={org || ""}
             ></input>
             <textarea
               id="description"

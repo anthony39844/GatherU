@@ -6,7 +6,7 @@ import SignIn from "./components/SignUp/SignUp";
 import EventForm from "./components/EventForm/EventForm";
 import OrgEvents from "./components/OrgEvents/OrgEvents";
 import { IdProvider } from "./context/IdContext";
-import Nav from "./components/Nav/Nav";
+
 
 function App() {
   return (

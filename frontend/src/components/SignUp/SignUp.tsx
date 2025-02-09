@@ -3,12 +3,12 @@ import Nav from "../Nav/Nav";
 import "./SignUp.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getId } from "../../context/IdContext";
+import { useIdContext } from "../../context/IdContext";
 
 function SignIn() {
   const navigate = useNavigate();
   const [signUp, setSignUp] = useState(true);
-  const { setId } = getId();
+  const { setId, setOrg } = useIdContext();
   const handleSignUp = async (e: any) => {
     e.preventDefault();
     const form = new FormData(e.target as HTMLFormElement);
@@ -47,6 +47,7 @@ function SignIn() {
       console.log("Form Data Submitted:", response.data);
       if (response.status == 200) {
         setId(response.data.id);
+        setOrg(response.data.username);
         navigate(`/${response.status}`);
       }
     } catch (error) {
