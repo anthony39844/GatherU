@@ -28,15 +28,13 @@ except Exception as e:
 
 app = FastAPI()
 
-class Account(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-    contact: list
-    role: str = "user"
-    status: str = "unverified"
-
 #  ----- EVENT SHIT -----
+class Event(BaseModel):
+    name: str
+    time: str
+    place: str
+    org: str
+    description: str
 
 @app.get("/events")
 async def displayEvents():
@@ -48,24 +46,39 @@ async def displayEvents():
     return events
 
 @app.patch("/events")
-async def updateEvent():
-
+async def updateEvent(event_id, key, val):
+    event_collection.update_one(
+            {'_id': ObjectId(event_id)},
+            {{key: val}})
     return {}
 
 @app.post("/add_events/")
-async def createEvent(item: dict):
-    org_id = str(user_collection.find({"username": item["org"]}).to_list()[0]['_id'])
-    new_item = {"name": item["name"], "time": item["time"],"place": item["place"],"org": item["org"],"org_id": org_id, "description": item["description"]}
+async def createEvent(item: Event):
+    org_id = str(user_collection.find({"username": item.org}).to_list()[0]._id)
+    new_item = {"name": item.name, "time": item.time,"place": item.place,"org": item.org,"org_id": org_id, "description": item.description}
     event_id = str(event_collection.insert_one(new_item).inserted_id)
     await updateAccount("events_list", event_id, org_id)
-    return {}
+    return {"message": "event added successfully"}
 
-@app.delete("/events")
-async def deleteEvent():
+@app.delete("/delete_events/{event_id}")
+async def deleteEvent(event_id):
+    result = await user_collection.delete_one({"_id": ObjectId(event_id)})
 
-    return {}
+    if result.deleted_count == 0:
+        return {"message": "Event not found or already deleted."}
+
+    return {"message": f"Event {event_id} deleted successfully."}
+    
 
 # ----- ACCOUNT SHIT -----
+
+class Account(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    contact: list
+    role: str = "user"
+    status: str = "unverified"
 
 @app.get("/loginAccount")
 async def displayAccount():
@@ -85,11 +98,18 @@ async def updateAccount(key, val, account_id):
     return {}
 
 @app.post("/createAccount")
-async def createAccount(username, email, password, contact, events=[], role="user"):
-        
+async def createAccount(account_info: Account):
+
+    new_user = {
+        "username": account_info.username,
+        "email": account_info.email,
+        "password": account_info.password,
+        "contact": account_info.contact,
+    }    
+    
     return {}
 
-@app.delete("/deleteaAccount")
+@app.delete("/deleteAccount")
 async def deleteAccount():
 
     return {}
