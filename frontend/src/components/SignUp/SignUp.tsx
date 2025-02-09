@@ -3,11 +3,12 @@ import Nav from "../Nav/Nav";
 import "./SignUp.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { getId } from "../../context/IdContext";
 
 function SignIn() {
   const navigate = useNavigate();
   const [signUp, setSignUp] = useState(true);
-
+  const { setId } = getId();
   const handleSignUp = async (e: any) => {
     e.preventDefault();
     const form = new FormData(e.target as HTMLFormElement);
@@ -45,7 +46,8 @@ function SignIn() {
       });
       console.log("Form Data Submitted:", response.data);
       if (response.status == 200) {
-        navigate(`/OrgEvents/${response.data.id}`);
+        setId(response.data.id);
+        navigate(`/${response.status}`);
       }
     } catch (error) {
       console.error("There was an error submitting the form:", error);

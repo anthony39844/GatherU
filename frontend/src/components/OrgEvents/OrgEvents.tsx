@@ -16,7 +16,6 @@ function OrgEvents() {
   const orgId = params.id;
   const [orgEvents, setOrgEvents] = useState<Event[]>([]);
   useEffect(() => {
-    console.log(orgId);
     if (!orgId) return;
 
     const fetchEvents = async () => {

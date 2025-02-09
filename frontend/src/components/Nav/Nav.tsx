@@ -1,16 +1,15 @@
 import "./Nav.css";
 import { Link } from "react-router-dom";
 import "./Nav.css";
+import { getId } from "../../context/IdContext";
 
-function Nav({ id }: { id?: string }) {
-    if(id) {
-        console.log(id)
-    }
+function Nav({ status }: { status?: string }) {
+  const { id: globalId } = getId();
   return (
     <div className="nav-container">
       <h1 className="title">GatherU</h1>
       <nav>
-        <Link to="/">
+        <Link to={status ? `/${status}` : "/"}>
           <div>Home</div>
         </Link>
         <Link to="/Events">
@@ -19,7 +18,7 @@ function Nav({ id }: { id?: string }) {
         <Link to="/SignUp">
           <div>Sign Up</div>
         </Link>
-        {id ? <Link to={`/OrgEvents/${id}`}>Account</Link> : null}
+        {globalId ? <Link to={`/OrgEvents/${globalId}`}>Account</Link> : null}
       </nav>
     </div>
   );
