@@ -34,6 +34,7 @@ class Event(BaseModel):
     month: int
     day: int
     year: int
+    time: str
     place: str
     org: str
     description: str
@@ -77,6 +78,7 @@ async def create_event(item: Event):
         "month": item.month,
         "day": item.day,
         "year": item.year,
+        "time": item.time,
         "place": item.place,
         "org": item.org,
         "org_id": org_id,
