@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
+from passlib.context import CryptContext
 
 from dotenv import load_dotenv
 import os
@@ -18,6 +19,7 @@ db = client['test']
 user_collection = db['users']
 event_collection = db['events']
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 try:
     client.admin.command('ping')
@@ -113,16 +115,30 @@ class Account(BaseModel):
     email: EmailStr
     password: str
     contact: list
+    events_list: list  = []
     role: str = "user"
     status: str = "unverified"
 
-@app.get("/loginAccount")
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@app.get("/displayAccount")
 async def displayAccount():
     res = user_collection.find()
     accounts = [account for account in res]
     for account in accounts:
         account["_id"] = str(account["_id"])
     return accounts
+
+@app.post("/loginAccount")
+async def loginAccount(loginRequest: LoginRequest):
+    
+    result = user_collection.find_one({"email": email})
+    if result:
+        stored_password = pwd_context.hash(password)
+
+    return {}
 
 @app.patch("/updateAccount")
 async def updateAccount(key, val, account_id, remove=False):
@@ -137,22 +153,44 @@ async def updateAccount(key, val, account_id, remove=False):
                 {'_id': ObjectId(account_id)},
                 {"$push": {key: val}});
 
-    return {}
+    return {"message":"Account updated!"}
 
-@app.post("/createAccount")
+@app.post("/createAccount", status_code=status.HTTP_201_CREATED)
 async def createAccount(account_info: Account):
 
+    # Check if the username or email already exists in db
+    if user_collection.find_one({"$or": [{"username": account_info.username}, {"email": account_info.email}]}):
+        raise HTTPException(status_code=400, detail="Account with this username or email already exists")
+    
+    hashed_password = pwd_context.hash(account_info.password)
+
+    # Create new entry in db
     new_user = {
         "username": account_info.username,
         "email": account_info.email,
-        "password": account_info.password,
+        "password": hashed_password,
         "contact": account_info.contact,
-    }    
+        "events_list": account_info.events_list,
+        "role": account_info.role,
+        "status": account_info.status
+
+    }
+
+    # Insert into collection of users
+    result = await user_collection.insert_one(new_user)
+
+    if result.inserted_count == 0:
+        return {"message":"Failed to create account"}    
     
-    return {}
+    return {"message":f"Account successfully created!"}
 
 @app.delete("/deleteAccount")
-async def deleteAccount():
+async def deleteAccount(user_id: str):
 
-    return {}
+    result = await user_collection.delete_one({"_id": ObjectId(user_id)})
+
+    if result.deleted_count == 0:
+        return {"message": f"Failed to delete user: {user_id}"}
+    
+    return {"message":"Account successfully deleted!"}
 
