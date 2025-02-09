@@ -9,6 +9,7 @@ function SignIn() {
   const navigate = useNavigate();
   const [signUp, setSignUp] = useState(true);
   const { setId, setOrg } = useIdContext();
+  
   const handleSignUp = async (e: any) => {
     e.preventDefault();
     const form = new FormData(e.target as HTMLFormElement);
@@ -27,6 +28,11 @@ function SignIn() {
         contact: contactList,
       });
       console.log("Form Data Submitted:", response.data);
+      if (response.status == 200) {
+        setId(response.data.id);
+        setOrg(response.data.username);
+        navigate(`/${response.status}`);
+      }
     } catch (error) {
       console.error("There was an error submitting the form:", error);
     }

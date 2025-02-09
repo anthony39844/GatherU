@@ -10,24 +10,63 @@ function Events() {
     const [data, setData] = useState<Event[]>([])
 
     useEffect(() => {
-        axios.get('http://localhost:8000/events')
-        .then(response => {
-            const newEvents: Event[] = response.data.map((current: any) => ({
-                name: current.name,
-                time: current.time,
-                month: current.month,
-                day: current.day,
-                year: current.year,
-                place: current.place,
-                org: current.org,
-                org_id: current.org_id,
-                description: current.description,
-              }));
-              setData(newEvents); // Update state
-        })
-        .catch(error => {
-            console.error('Error occurred:', error);
-        });
+        let isMounted = true;
+        let verifiedAccounts :string[]= [];
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/events");
+
+      const newEvents: Event[] = response.data.map((current: any) => ({
+        name: current.name,
+        time: current.time,
+        month: current.month,
+        day: current.day,
+        year: current.year,
+        place: current.place,
+        org: current.org,
+        org_id: current.org_id,
+        description: current.description,
+      }));
+
+      // Fetch verification status for each event's org_id
+      const verificationChecks = newEvents.map(event =>{
+        if (!verifiedAccounts.includes(event.org_id)) {
+            return axios
+              .get(`http://localhost:8000/get_one_account/${event.org_id}`)
+              .then(res => {
+                const isVerified = res.data[0].status === "verified";
+                
+                if (isVerified) {
+                    verifiedAccounts = [...new Set([...verifiedAccounts, event.org_id])];
+                  console.log(verifiedAccounts)
+                }
+      
+                return { ...event, isVerified };
+              })
+              .catch(() => ({ ...event, isVerified: false }));
+          } else {
+            return Promise.resolve({ ...event, isVerified: true }); // Skip API call if already verified
+          }}
+      );
+
+      const verifiedEvents = (await Promise.all(verificationChecks)).filter(
+        event => event.isVerified
+      );
+
+
+      if (isMounted) {
+        setData(verifiedEvents); 
+      }
+
+    } catch (error) {
+      console.error("Error occurred:", error);
+    }
+  };
+
+  fetchEvents();
+  return () => {
+    isMounted = false; // Cleanup function
+  };
     }, [])
     
     data.sort((a, b) => {

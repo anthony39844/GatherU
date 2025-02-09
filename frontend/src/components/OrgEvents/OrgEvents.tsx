@@ -40,6 +40,7 @@ function OrgEvents() {
           org: res.data.org,
           org_id: res.data.org_id,
           description: res.data.description,
+          isVerified: false
         }));
         setOrgEvents(newEvents);
       } catch (error) {

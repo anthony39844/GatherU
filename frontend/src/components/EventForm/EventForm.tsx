@@ -9,6 +9,7 @@ function EventForm() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const { org } = useIdContext();
   const navigate = useNavigate();
+  let added = false
 
   useEffect(() => {
     if (!org) {
@@ -49,6 +50,9 @@ function EventForm() {
         eventData
       );
       console.log("Event Created:", response.data); // Log the response data
+      if (response.status == 200) {
+        added = true
+      }
       // You can show a success message or redirect the user here
     } catch (err) {
       console.error("Error submitting the event:", err);
@@ -57,7 +61,7 @@ function EventForm() {
   return (
     <>
       <Nav></Nav>
-      <div className="container">
+      <div className="container" >
         <div className="form-container">
           <h1>Create an event</h1>
           <form className="form" onSubmit={handleSubmit}>

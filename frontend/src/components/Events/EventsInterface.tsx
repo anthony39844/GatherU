@@ -6,7 +6,8 @@ export interface Event {
     year: number;
     place: string;
     org: string;
-    org_id: string | { $numberInt: string };
+    org_id: string;
     description: string;
     [key: string]: any;
+    isVerified: boolean;
   }
