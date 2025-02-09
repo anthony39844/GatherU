@@ -31,7 +31,9 @@ app = FastAPI()
 #  ----- EVENT SHIT -----
 class Event(BaseModel):
     name: str
-    time: str
+    month: int
+    day: int
+    year: int
     place: str
     org: str
     description: str
@@ -53,19 +55,43 @@ async def updateEvent(event_id, key, val):
     return {}
 
 @app.post("/add_events/")
-async def createEvent(item: Event):
-    org_id = str(user_collection.find({"username": item.org}).to_list()[0]._id)
-    new_item = {"name": item.name, "time": item.time,"place": item.place,"org": item.org,"org_id": org_id, "description": item.description}
-    event_id = str(event_collection.insert_one(new_item).inserted_id)
+async def create_event(item: Event):
+
+    # Find organization
+    user_doc = user_collection.find({"username": str(item.org)}).to_list()[0]
+    if not user_doc:
+        return {"message" : "Error adding"}
+    org_id = str(user_doc["_id"])
+
+    # Insert event
+    new_item = {
+        "name": item.name,
+        "month": item.month,
+        "day": item.day,
+        "year": item.year,
+        "place": item.place,
+        "org": item.org,
+        "org_id": org_id,
+        "description": item.description,
+    }
+
+    result = event_collection.insert_one(new_item)
+    event_id = str(result.inserted_id)
+
+    # Ensure updateAccount is async
     await updateAccount("events_list", event_id, org_id)
-    return {"message": "event added successfully"}
+
+    return {"message": "Event added successfully"}
 
 @app.delete("/delete_events/{event_id}")
 async def deleteEvent(event_id):
-    result = await user_collection.delete_one({"_id": ObjectId(event_id)})
+    event_doc = event_collection.find({"_id": ObjectId(event_id)}).to_list()[0]
+    org_id = event_doc["org_id"]
+    result = event_collection.delete_one({"_id": ObjectId(event_id)})
 
     if result.deleted_count == 0:
         return {"message": "Event not found or already deleted."}
+    await updateAccount("events_list", event_id, org_id, remove=True)
 
     return {"message": f"Event {event_id} deleted successfully."}
     
@@ -89,11 +115,17 @@ async def displayAccount():
     return accounts
 
 @app.patch("/updateAccount")
-async def updateAccount(key, val, account_id):
+async def updateAccount(key, val, account_id, remove=False):
     if key == "events_list":
-        user_collection.update_one(
-            {'_id': ObjectId(account_id)},
-            {"$push": {key: val}});
+        if remove:
+            user_collection.update_one(
+                { '_id': ObjectId(account_id)},
+                { "$pull": { key: val } }
+            )
+        else:
+            user_collection.update_one(
+                {'_id': ObjectId(account_id)},
+                {"$push": {key: val}});
 
     return {}
 
