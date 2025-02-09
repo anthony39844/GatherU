@@ -3,15 +3,32 @@ import "./Events.css"
 import { Event } from "./EventsInterface"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPeopleGroup, faClock, faLocationDot } from '@fortawesome/free-solid-svg-icons'; 
+import axios from 'axios';
+import { useEffect, useState } from "react";
 
 function Events() {
-    let data: Event[] = [ 
-        {"name":"CASA chinese new years the best day gong xi fa cai hong bao", month: 2, day: 14, year: 2025, "time":"5:00","place":"coffman","org":"umn","org_id":"2","description":"this is the best time of year where i am going to get hella money and get rich so fuck yall broke boys go get your paper up. u know gong xi fa cai hong bao na lai, xin nian kuai le shen ti jian kang and things of that nature, w prosperity long fortune and thigns of that nature"}, 
-        {"name":"VSAM tet show", month: 2, day: 15, year: 2025, "time":"5:00","place":"coffman","org":"umn","org_id":"2","description":"MOMREORM"}, 
-        {"name":"me", month: 2, day: 16, year: 2025, "time":"5:00","place":"coffman","org":"umn","org_id":"2","description":"MOMREORM"}, 
-        {"name":"u know", month: 2, day: 17, year: 2025, "time":"5:00","place":"coffman","org":"umn","org_id":"2","description":"MOMREORM"}, 
-        {"name":"the vibes", month: 2, day: 17, year: 2025, "time":"5:00","place":"coffman","org":"umn","org_id":"2","description":"MOMREORM"},  
-    ];
+    const [data, setData] = useState<Event[]>([])
+
+    useEffect(() => {
+        axios.get('http://localhost:8000/events')
+        .then(response => {
+            const newEvents: Event[] = response.data.map((current: any) => ({
+                name: current.name,
+                time: current.time,
+                month: current.month,
+                day: current.day,
+                year: current.year,
+                place: current.place,
+                org: current.org,
+                org_id: current.org_id,
+                description: current.description,
+              }));
+              setData(newEvents); // Update state
+        })
+        .catch(error => {
+            console.error('Error occurred:', error);
+        });
+    })
 
     let groupedItems = data.reduce((acc: {[key: string]: Event[]}, item) => {
         const dateKey = `${item.month}-${item.day}-${item.year}`;
@@ -24,9 +41,6 @@ function Events() {
       
         return acc;
     }, {});
-    console.log(groupedItems)
-    const groupedArrays = Object.values(groupedItems);
-    console.log(groupedArrays)
     return (
         <>
         <Nav></Nav>

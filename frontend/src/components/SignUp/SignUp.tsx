@@ -12,6 +12,8 @@ function SignIn() {
                 <h1 className="subtext">Sign up as an organization to promote your events!</h1>
                 <div className="form-container">
                     <form className="form">
+                        <input type="text" id="name" name="name" required placeholder="Organization Name"></input>
+
                         <input type="email" id="user" name="user" required placeholder="Organization Email"></input>
 
                         <input type="password" id="password" name="password" required placeholder="Password"></input>

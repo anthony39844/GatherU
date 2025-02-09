@@ -4,6 +4,7 @@ from pymongo.server_api import ServerApi
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
+from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
 import os
@@ -29,7 +30,13 @@ except Exception as e:
 
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 #  ----- EVENT SHIT -----
 class Event(BaseModel):
     name: str
@@ -177,7 +184,7 @@ async def createAccount(account_info: Account):
     }
 
     # Insert into collection of users
-    result = await user_collection.insert_one(new_user)
+    result = user_collection.insert_one(new_user)
 
     if result.inserted_count == 0:
         return {"message":"Failed to create account"}    
