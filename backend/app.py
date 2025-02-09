@@ -141,11 +141,17 @@ async def displayAccount():
 @app.post("/loginAccount")
 async def loginAccount(loginRequest: LoginRequest):
     
-    result = user_collection.find_one({"email": email})
-    if result:
-        stored_password = pwd_context.hash(password)
+    user = user_collection.find_one({"email":loginRequest.email})
 
-    return {}
+    if not user or not pwd_context.verify(loginRequest.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    return {
+        "id": str(user["_id"]),   # Convert ObjectId to string
+        "email": user["email"],
+        "username": user["username"],
+        "role": user["role"]
+    }
 
 @app.patch("/updateAccount")
 async def updateAccount(key, val, account_id, remove=False):

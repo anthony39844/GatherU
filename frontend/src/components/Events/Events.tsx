@@ -29,6 +29,13 @@ function Events() {
             console.error('Error occurred:', error);
         });
     }, [])
+    
+    data.sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        
+        if (a.month !== b.month) return a.month - b.month;
+        return a.day - b.day;
+      })
 
     let groupedItems = data.reduce((acc: {[key: string]: Event[]}, item) => {
         const dateKey = `${item.month}-${item.day}-${item.year}`;
@@ -50,7 +57,7 @@ function Events() {
                 {Object.entries(groupedItems).map(([key, value]) => {
                     return (
                         <div className="day-module" key={key}>
-                            <h1 className="day-title">{`${key.split("-").slice(0, 2).join("-")}`}</h1>
+                            <h1 className="day-title">{`${key}`}</h1>
                             {value.map((data, index) => {
                                 return (
                                     <div className="event-module" key={index}>

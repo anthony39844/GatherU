@@ -96,6 +96,7 @@ function EventForm() {
               value={message}
               onChange={handleChange}
               placeholder="Description"
+              required
             ></textarea>
             <button className="submit-btn" type="submit">
               Make Event

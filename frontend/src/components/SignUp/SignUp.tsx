@@ -13,15 +13,27 @@ function SignIn() {
     password: "",
     contact: [],
   });
-  const handleChange = (e) => {
+  const [signInData, setSignInData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSignInChange = (e: any) => {
+    const { name, value } = e.target;
+      setSignInData({
+        ...formData,
+        [name]: value,
+      });
+  };
+  
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
 
     if (name === "contact") {
-      // Split the input value by commas and remove any extra spaces
       const updatedContacts = value
         .split(",")
-        .map((contact) => contact.trim()) // Trim whitespace from each contact
-        .filter((contact) => contact); // Remove empty strings if there are accidental commas
+        .map((contact: string) => contact.trim()) 
+        .filter((contact: string) => contact); 
       setFormData({
         ...formData,
         [name]: updatedContacts,
@@ -34,20 +46,33 @@ function SignIn() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the form from refreshing the page
+  const handleSubmit = async (e: any) => {
+    e.preventDefault(); 
     console.log("Form Data:", formData);
     try {
-      // Make POST request to your backend
       const response = await axios.post(
         "http://localhost:8000/createAccount",
         formData
       );
-      console.log("Form Data Submitted:", response.data); // Handle the response data from the backend
+      console.log("Form Data Submitted:", response.data); 
     } catch (error) {
       console.error("There was an error submitting the form:", error);
     }
   };
+
+  const handleSignIn = async (e: any) => {
+    e.preventDefault(); 
+    try {
+        const response = await axios.post(
+            "http://localhost:8000/loginAccount",
+            signInData
+        );
+        console.log("Form Data Submitted:", response.data); 
+        } catch (error) {
+        console.error("There was an error submitting the form:", error);
+        }
+    }
+  
 
   return (
     <>
@@ -111,13 +136,14 @@ function SignIn() {
         style={{ display: signUp ? "none" : "flex" }}
       >
         <div className="form-container">
-          <form className="form">
+          <form className="form" onSubmit={handleSignIn}>
             <input
               type="email"
               id="user"
               name="user"
               required
               placeholder="Organization Email"
+              onChange={handleSignInChange}
             ></input>
 
             <input
@@ -126,6 +152,7 @@ function SignIn() {
               name="password"
               required
               placeholder="Password"
+              onChange={handleSignInChange}
             ></input>
 
             <button className="submit-btn" type="submit">
