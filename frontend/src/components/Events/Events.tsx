@@ -28,7 +28,7 @@ function Events() {
         .catch(error => {
             console.error('Error occurred:', error);
         });
-    })
+    }, [])
 
     let groupedItems = data.reduce((acc: {[key: string]: Event[]}, item) => {
         const dateKey = `${item.month}-${item.day}-${item.year}`;
@@ -41,6 +41,7 @@ function Events() {
       
         return acc;
     }, {});
+
     return (
         <>
         <Nav></Nav>
