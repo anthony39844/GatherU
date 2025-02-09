@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Nav from "../Nav/Nav";
 import "./SignUp.css"
+import EventForm from "../EventForm/EventForm";
+import OrgEvents from "../OrgEvents/OrgEvents";
 
 function SignIn() {
     const [signUp, setSignUp] = useState(true)
@@ -36,6 +38,8 @@ function SignIn() {
                 </div>
                 <h3>Back to sign up <span onClick={() => setSignUp(!signUp)}>here</span></h3>
             </div>
+            <EventForm></EventForm>
+            <OrgEvents></OrgEvents>
         </> 
     );
 }
