@@ -18,7 +18,6 @@ function OrgEvents() {
     let orgEvents = data.filter((item) => {
         return item.org_id == orgId;  
     });
-    console.log(orgEvents)
     
     return (
         <>
